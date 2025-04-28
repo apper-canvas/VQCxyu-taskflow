@@ -1,10 +1,12 @@
 import { createSlice } from '@reduxjs/toolkit';
+import { loadSDK, logout as logoutService } from '../services/authService';
 
 const initialState = {
   user: null,
   isAuthenticated: false,
   loading: true,
-  error: null
+  error: null,
+  sdkLoaded: false
 };
 
 export const userSlice = createSlice({
@@ -29,19 +31,44 @@ export const userSlice = createSlice({
     setError: (state, action) => {
       state.error = action.payload;
       state.loading = false;
+    },
+    setSDKLoaded: (state, action) => {
+      state.sdkLoaded = action.payload;
     }
   },
 });
 
-export const { setUser, clearUser, setLoading, setError } = userSlice.actions;
+export const { setUser, clearUser, setLoading, setError, setSDKLoaded } = userSlice.actions;
 
-export const logout = () => async (dispatch) => {
+// Initialize SDK loading
+export const initializeSDK = () => async (dispatch) => {
+  dispatch(setLoading(true));
   try {
-    const { ApperUI } = window.ApperSDK;
-    ApperUI.logout();
-    dispatch(clearUser());
+    await loadSDK();
+    dispatch(setSDKLoaded(true));
+    dispatch(setLoading(false));
+  } catch (error) {
+    console.error("Failed to load Apper SDK:", error);
+    dispatch(setError("Failed to initialize authentication"));
+    dispatch(setSDKLoaded(false));
+  }
+};
+
+// Enhanced logout function
+export const logout = () => async (dispatch) => {
+  dispatch(setLoading(true));
+  try {
+    const success = logoutService();
+    if (success) {
+      dispatch(clearUser());
+    } else {
+      dispatch(setError("Logout failed"));
+    }
   } catch (error) {
     console.error("Error during logout:", error);
+    dispatch(setError("Error during logout"));
+  } finally {
+    dispatch(setLoading(false));
   }
 };
 

@@ -2,6 +2,9 @@ const CANVAS_ID = "b136133272e94b3a99a5a910862af5b7";
 
 export const getApperClient = () => {
   try {
+    if (!window.ApperSDK || !window.ApperSDK.ApperClient) {
+      throw new Error("Apper SDK not loaded");
+    }
     const { ApperClient } = window.ApperSDK;
     return new ApperClient(CANVAS_ID);
   } catch (error) {
