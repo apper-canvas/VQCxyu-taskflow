@@ -1,18 +1,11 @@
 import { useState, useEffect } from "react";
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 import { Sun, Moon } from "lucide-react";
 import { motion } from "framer-motion";
-import { useSelector } from "react-redux";
-import Dashboard from "./pages/Dashboard";
 import Home from "./pages/Home";
 import NotFound from "./pages/NotFound";
-import Login from "./pages/Login";
-import Signup from "./pages/Signup";
-import ProtectedRoute from "./components/ProtectedRoute";
-import PublicRoute from "./components/PublicRoute";
 
 function App() {
-  const { isAuthenticated } = useSelector((state) => state.user);
   const [darkMode, setDarkMode] = useState(() => {
     const savedMode = localStorage.getItem("darkMode");
     return savedMode ? JSON.parse(savedMode) : 
@@ -47,69 +40,20 @@ function App() {
             </motion.div>
           </div>
           
-          <div className="flex items-center gap-4">
-            {isAuthenticated && (
-              <motion.a
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                href="/dashboard"
-                className="text-surface-700 dark:text-surface-200 hover:text-primary dark:hover:text-primary transition-colors"
-              >
-                Dashboard
-              </motion.a>
-            )}
-            
-            {!isAuthenticated && (
-              <>
-                <motion.a
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  href="/login"
-                  className="text-surface-700 dark:text-surface-200 hover:text-primary dark:hover:text-primary transition-colors"
-                >
-                  Login
-                </motion.a>
-                <motion.a
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  href="/signup"
-                  className="text-surface-700 dark:text-surface-200 hover:text-primary dark:hover:text-primary transition-colors"
-                >
-                  Signup
-                </motion.a>
-              </>
-            )}
-            
-            <motion.button
-              whileTap={{ scale: 0.9 }}
-              onClick={toggleDarkMode}
-              className="p-2 rounded-full bg-surface-100 dark:bg-surface-800 hover:bg-surface-200 dark:hover:bg-surface-700 transition-colors"
-              aria-label="Toggle dark mode"
-            >
-              {darkMode ? <Sun size={20} /> : <Moon size={20} />}
-            </motion.button>
-          </div>
+          <motion.button
+            whileTap={{ scale: 0.9 }}
+            onClick={toggleDarkMode}
+            className="p-2 rounded-full bg-surface-100 dark:bg-surface-800 hover:bg-surface-200 dark:hover:bg-surface-700 transition-colors"
+            aria-label="Toggle dark mode"
+          >
+            {darkMode ? <Sun size={20} /> : <Moon size={20} />}
+          </motion.button>
         </div>
       </header>
 
       <main className="container mx-auto px-4 pt-20 pb-10 min-h-screen">
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/login" element={
-            <PublicRoute>
-              <Login />
-            </PublicRoute>
-          } />
-          <Route path="/signup" element={
-            <PublicRoute>
-              <Signup />
-            </PublicRoute>
-          } />
-          <Route path="/dashboard" element={
-            <ProtectedRoute>
-              <Dashboard />
-            </ProtectedRoute>
-          } />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </main>
