@@ -1,16 +1,20 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Plus, X, Calendar, Flag } from "lucide-react";
+import { useDispatch } from "react-redux";
+import { addTask } from "../store/taskSlice";
 
-const MainFeature = ({ onAddTask }) => {
+const MainFeature = () => {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [formData, setFormData] = useState({
     title: "",
     description: "",
     dueDate: "",
-    priority: "medium"
+    priority: "medium",
+    completed: false
   });
   const [errors, setErrors] = useState({});
+  const dispatch = useDispatch();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -43,30 +47,28 @@ const MainFeature = ({ onAddTask }) => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     
     if (!validateForm()) return;
     
-    const newTask = {
-      id: Date.now().toString(),
-      ...formData,
-      completed: false,
-      createdAt: new Date().toISOString()
-    };
-    
-    onAddTask(newTask);
-    
-    // Reset form
-    setFormData({
-      title: "",
-      description: "",
-      dueDate: "",
-      priority: "medium"
-    });
-    
-    // Close form
-    setIsFormOpen(false);
+    try {
+      await dispatch(addTask(formData)).unwrap();
+      
+      // Reset form
+      setFormData({
+        title: "",
+        description: "",
+        dueDate: "",
+        priority: "medium",
+        completed: false
+      });
+      
+      // Close form
+      setIsFormOpen(false);
+    } catch (error) {
+      console.error("Error adding task:", error);
+    }
   };
 
   return (
